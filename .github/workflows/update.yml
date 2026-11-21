@@ -1,0 +1,83 @@
+name: Aktualizacja cen dla dane.gov.pl
+
+on:
+  schedule:
+    - cron: '30 22 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  GOOGLE_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBjbmCkg7XfEz5oagAWqBSTu3AULmQJepNsYw5zSKtzAOvqO0cjnK6kl40VHv_WMeldKy7EMNF8SmL/pub?gid=830194289&single=true&output=csv"
+  BASE_URL: "https://github.io."
+  DEVELOPER: "PHU KUREK DREAM HOME"
+  DATASET_ID: "phu_kurek_dream_home_ceny_mieszkan"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pobierz CSV i wygeneruj XML oraz MD5
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          CSV_NAME="ceny_${TODAY}.csv"
+          curl -sL "$GOOGLE_CSV_URL" -o "$CSV_NAME"
+
+          cat <<EOF > harvester.xml
+          <?xml version="1.0" encoding="UTF-8"?>
+          <ns2:datasets xmlns:ns2="urn:otwarte-dane:harvester:1.13" xmlns:xsi="http://w3.org">
+            <dataset status="published">
+              <extIdent>${DATASET_ID}</extIdent>
+              <title>
+                <polish>Ceny ofertowe mieszkań - ${DEVELOPER}</polish>
+              </title>
+              <description>
+                <polish>Zestawienie cen ofertowych lokali mieszkalnych udostępniane zgodnie z ustawą o ochronie praw nabywcy lokalu mieszkalnego lub domu jednorodzinnego.</polish>
+              </description>
+              <url>${BASE_URL}</url>
+              <updateFrequency>daily</updateFrequency>
+              <categories>
+                <category>ECON</category>
+              </categories>
+              <resources>
+          EOF
+
+          for f in ceny_*.csv; do
+            [ -e "$f" ] || continue
+            FDATE=$(echo "$f" | sed -E 's/ceny_([0-9-]+)\.csv/\1/')
+            RES_ID=$(echo -n "$f" | md5sum | awk '{print $1}')
+
+            cat <<EOF >> harvester.xml
+                <resource>
+                  <extIdent>${RES_ID}</extIdent>
+                  <url>${BASE_URL}/${f}</url>
+                  <title>
+                    <polish>Ceny ofertowe mieszkań dewelopera ${DEVELOPER} ${FDATE}</polish>
+                  </title>
+                  <description>
+                    <polish>Dane dotyczące cen ofertowych mieszkań dewelopera ${DEVELOPER} udostępnione ${FDATE} zgodnie z art. 19b ust. 1 ustawy deweloperskiej.</polish>
+                  </description>
+                  <availability>remote</availability>
+                  <dataDate>${FDATE}</dataDate>
+                  <lastUpdateDate>${FDATE}T00:01:00Z</lastUpdateDate>
+                </resource>
+          EOF
+          done
+
+          cat <<EOF >> harvester.xml
+              </resources>
+            </dataset>
+          </ns2:datasets>
+          EOF
+
+          md5sum harvester.xml | awk '{print $1}' > harvester.md5
+
+      - name: Zapisz pliki w repozytorium
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Aktualizacja cen" && git push)
