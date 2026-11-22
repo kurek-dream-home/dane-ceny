@@ -10,7 +10,7 @@ permissions:
 
 env:
   GOOGLE_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBjbmCkg7XfEz5oagAWqBSTu3AULmQJepNsYw5zSKtzAOvqO0cjnK6kl40VHv_WMeldKy7EMNF8SmL/pub?gid=830194289&single=true&output=csv"
-  BASE_URL: "https://github.io."
+  BASE_URL: "https://kurek-dream-home.github.io/dane-ceny"
   DEVELOPER: "PHU KUREK DREAM HOME"
   DATASET_ID: "phu_kurek_dream_home_ceny_mieszkan"
 
