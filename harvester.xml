@@ -66,6 +66,19 @@
         <dataDate>2026-11-24</dataDate>
         <lastUpdateDate>2026-11-24T00:01:00Z</lastUpdateDate>
       </resource>
+      <resource>
+        <extIdent>1e48d6c07e20913b3d2a754f27fa9b2c</extIdent>
+        <url>https://kurek-dream-home.github.io/dane-ceny/ceny_2026-11-25.csv</url>
+        <title>
+          <polish>Ceny ofertowe mieszkań dewelopera PHU KUREK DREAM HOME 2026-11-25</polish>
+        </title>
+        <description>
+          <polish>Dane dotyczące cen ofertowych mieszkań dewelopera PHU KUREK DREAM HOME udostępnione 2026-11-25 zgodnie z art. 19b ust. 1 ustawy deweloperskiej.</polish>
+        </description>
+        <availability>remote</availability>
+        <dataDate>2026-11-25</dataDate>
+        <lastUpdateDate>2026-11-25T00:01:00Z</lastUpdateDate>
+      </resource>
     </resources>
   </dataset>
 </ns2:datasets>
